@@ -1,5 +1,6 @@
 #include <queue>
 #include <map>
+#include <functional>
 #include <string.h>
 #include <stdlib.h>
 #include "type.hpp"
@@ -16,13 +17,17 @@ private:
 		NodeId dest;
 		Pending( void* Data, size_t Count,  unsigned long DueTime, NodeId Dest);
 		~Pending();
-		bool operator<(const Pending& a)const;
+		class Compare
+		{
+		public:
+			bool operator()(const Pending* a,const Pending* b)const;
+		};
 	};
 	unsigned long delay;
 	unsigned long currentTime;
 	NodeId node[2];
 	std::map<NodeId,void(*)(void*,size_t)>* bookPtr;
-	std::priority_queue<Pending> awaits;
+	std::priority_queue<Pending*,std::vector<Pending*>,Pending::Compare> awaits;
 public:
 	Path();
 	Path( NodeId Node1, NodeId Node2,std::map<NodeId,void(*)(void*,size_t)>* BookPtr, unsigned long Delay);

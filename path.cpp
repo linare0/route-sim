@@ -1,8 +1,8 @@
 #include "path.hpp"
 
-bool Path::Pending::operator<(const Pending& a)
+bool Path::Pending::Compare::operator()(const Pending* a,const Pending* b)
 const{
-	return dueTime > a.dueTime;
+	return a->dueTime > b->dueTime;
 }
 
 Path::Pending::Pending( void* Data, size_t Count, unsigned long DueTime, NodeId Dest)
@@ -33,6 +33,7 @@ Path::Path( NodeId Node1, NodeId Node2,std::map<NodeId,void(*)(void*,size_t)>* B
 	currentTime = 0;
 	node[0] = Node1;
 	node[1] = Node2;
+	bookPtr = BookPtr;
 }
 
 void Path::setDelay( unsigned long Delay)
@@ -60,18 +61,26 @@ void Path::disconnect()
 void Path::transmit( NodeId Src, void *Data, size_t Count)
 {
 	if(Src == node[1])
-		awaits.push(Pending(Data,Count,currentTime + delay,node[0]));
+	{
+		auto var = new Pending(Data,Count,currentTime + delay,node[0]);
+		awaits.push(var);
+	}
 	else if(Src == node[0])
-		awaits.push(Pending(Data,Count,currentTime + delay,node[1]));
+	{
+		auto var = new Pending(Data,Count,currentTime + delay,node[1]);
+		awaits.push(var);
+	}
 }
 
 void Path::timeElapsed( unsigned long Elapsed)
 {
 	currentTime += Elapsed;
-	while(awaits.top().dueTime <= currentTime)
+	while(!awaits.empty()&& awaits.top()->dueTime <= currentTime)
 	{
-		(*(bookPtr->find(awaits.top().dest)->second))
-			(awaits.top().data,awaits.top().count);
+		bookPtr->size();
+		auto fp = (bookPtr->find(awaits.top()->dest)->second);
+		fp(awaits.top()->data,awaits.top()->count);
+		delete awaits.top();
 		awaits.pop();
 	}
 }
