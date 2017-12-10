@@ -1,3 +1,6 @@
+#ifndef PATH_HPP
+#define PATH_HPP
+
 #include <queue>
 #include <map>
 #include <functional>
@@ -38,3 +41,5 @@ public:
 	void transmit( NodeId Src, void *Data, size_t Count);
 	void timeElapsed( unsigned long Elapsed);
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef NODE_HPP
+#define NODE_HPP
+
 #include "type.hpp"
 #include <set>
 #include <algorithm>
@@ -26,3 +29,5 @@ public:
 	Node(NodeId MyId,void(*OutPtr)(NodeId,void*,size_t));
 	void recieve(void* Data,size_t Count);
 };
+
+#endif
