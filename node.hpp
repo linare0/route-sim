@@ -10,13 +10,13 @@ private:
 	{
 		NodeId src;
 		NodeId dest;
-	} Path;
+	} Path_;
 	class Compare
 	{
 	public:
-		bool operator()(const Path& a,const Path& b)const;
+		bool operator()(const Path_& a,const Path_& b)const;
 	};
-	std::set<Path,Compare> paths;
+	std::set<Path_,Compare> paths;
 	std::map<NodeId,NodeId> nextHop;
 	void(*transmit)(NodeId,void*,size_t);
 	NodeId myId;

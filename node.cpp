@@ -6,7 +6,7 @@ Node::Node(NodeId MyId,void(*OutPtr)(NodeId,void*,size_t))
 	transmit = OutPtr;
 }
 
-bool Node::Compare::operator()(const Path& a,const Path& b)const
+bool Node::Compare::operator()(const Path_& a,const Path_& b)const
 {
 	if(a.src == b.src)
 		return a.dest < b.dest;
@@ -29,7 +29,7 @@ void Node::recieve(void* Data,size_t Count)
 void Node::procAdv(void* Data,size_t Count)
 {
 	const AdvPkt* pkt = (AdvPkt*)Data;
-	Path* inp = (Path*)((size_t)Data + sizeof(AdvPkt));
+	Path_* inp = (Path_*)((size_t)Data + sizeof(AdvPkt));
 	bool changed = false;
 	for(uint32_t i = 0;i < pkt->count;i++)
 	{
@@ -40,7 +40,7 @@ void Node::procAdv(void* Data,size_t Count)
 		};
 	}
 	{
-		Path temp;
+		Path_ temp;
 		temp.src = pkt->lastHop;
 		temp.dest = myId;
 		if(paths.find(temp) == paths.end())
@@ -51,11 +51,11 @@ void Node::procAdv(void* Data,size_t Count)
 	}
 	if(changed)
 	{
-		AdvPkt* npkt = (AdvPkt*)malloc(sizeof(Path) * paths.size() + sizeof(AdvPkt));
+		AdvPkt* npkt = (AdvPkt*)malloc(sizeof(Path_) * paths.size() + sizeof(AdvPkt));
 		npkt->magic = MAGIC_ADV;
 		npkt->count = paths.size();
 		npkt->lastHop = myId;
-		Path* innp = (Path*)((size_t)npkt + sizeof(AdvPkt));
+		Path_* innp = (Path_*)((size_t)npkt + sizeof(AdvPkt));
 		uint32_t index = 0;
 		for(const auto& ref : paths)
 		{
@@ -63,6 +63,6 @@ void Node::procAdv(void* Data,size_t Count)
 			innp[index].dest = ref.dest;
 			index++;
 		}
-		transmit(myId,npkt,sizeof(Path) * paths.size() + sizeof(AdvPkt));
+		transmit(myId,npkt,sizeof(Path_) * paths.size() + sizeof(AdvPkt));
 	}
 }
