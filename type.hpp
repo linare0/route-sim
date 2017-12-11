@@ -10,6 +10,7 @@
 #define MAGIC_ADV 0x436709e0
 
 typedef uint32_t NodeId;
+typedef uint32_t PathId;
 typedef uint32_t Magic;
 typedef struct
 {

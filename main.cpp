@@ -19,44 +19,114 @@ uint32_t Time::elapsed()
 	return retval;
 }
 
-void parse(void* data,size_t count)
+Event::Event()
 {
-	switch(*(Magic*)data)
-	{
-	case MAGIC_ADV:
-		AdvPktHdr* pkt = (AdvPktHdr*)data;
-		AdvPktPath* pts = (AdvPktPath*)((size_t)data + sizeof(AdvPktHdr));
-		printf("ADV PACKET: COUNT=%d LASTHOP=%d\n",pkt->count,pkt->lastHop);
-		for(uint32_t i = 0;i < pkt->count;i++)
-		{
-			printf("PATH SRC=%d DEST=%d\n",pts[i].src,pts[i].dest);
-		}
-		printf("\n");
-		break;
-	}
+
+}
+
+Event::Event(uint32_t Type,uint32_t Time,uint32_t Arg1,uint32_t Arg2,uint32_t Arg3,uint32_t Arg4)
+{
+	type = Type;
+	time = Time;
+	args[0] = Arg1;
+	args[1] = Arg2;
+	args[2] = Arg3;
+	args[3] = Arg4;
+}
+
+bool Event::operator<(const Event a)const
+{
+	return time > a.time;
 }
 
 void send(NodeId src,void* data,size_t count)
 {
 	for(const auto& ref: paths)
-		ref->transmit(src,data,count);
+		ref.second->transmit(src,data,count);
 }
 
 int main(void)
 {
-	book.insert(std::make_pair(2,parse));
-	Path var2 = Path(1,2,&book,1000);
-	paths.push_back(&var2);
-	Node var = Node(1,send);
-	AdvPktFactory factory = AdvPktFactory(11);
-	factory.addPath(2,3);
-	auto made = factory.buildPkt();
-	var.recieve(made.first,made.second);
-	Time timer = Time();
-	while(timer.getCurrent() < 5000)
+	std::string buf;
+	Event tmpEvent;
+	while(true)
 	{
-		var2.timeElapsed(timer.elapsed());
-		fflush(stdout);
-		usleep(1000);
+		std::cin >> buf;
+		if(buf == "declare")
+		{
+			tmpEvent.type = VERB_DECLARE;
+			std::cin >> tmpEvent.time >> tmpEvent.args[0];
+		}
+		else if(buf == "connect")
+		{
+			tmpEvent.type = VERB_CONNECT;
+			std::cin >> tmpEvent.time >> tmpEvent.args[0] >> tmpEvent.args[1] >> tmpEvent.args[2] >> tmpEvent.args[3];
+		}
+		else if(buf == "disconnect")
+		{
+			tmpEvent.type = VERB_DISCONNECT;
+			std::cin >> tmpEvent.time >> tmpEvent.args[0];
+		}
+		else if(buf == "end")
+		{
+			tmpEvent.type = VERB_END;
+			std::cin >> tmpEvent.time;
+		}
+		else if(buf == "start")
+		{
+			goto startmain;
+			break;
+		}
+		events.push(tmpEvent);
 	}
-};
+startmain:
+	uint32_t elapsed = 0;
+	Time timer = Time();
+	while(!events.empty())
+	{
+		if(events.top().time <= timer.getCurrent())
+		{
+			switch(events.top().type)
+			{
+				case VERB_DECLARE:
+				{
+					auto node = new Node(events.top().args[0],send);
+					book.insert(std::make_pair(events.top().args[0],node));
+					printf("[%7d]Node %d has declaed.\n",timer.getCurrent(),events.top().args[0]);
+					break;
+				}
+				case VERB_CONNECT:
+				{
+					auto path = new Path(events.top().args[1],events.top().args[2],&book,events.top().args[3]);
+					paths[events.top().args[0]] = path;
+					printf("[%7d]Path %d has connected between %d and %d with delay for %d.\n",timer.getCurrent(),events.top().args[0],events.top().args[1],events.top().args[2],events.top().args[3]);
+					break;
+				}
+				case VERB_DISCONNECT:
+				{
+					delete paths[events.top().args[0]];
+					paths.erase(events.top().args[0]);
+					printf("[%7d]Path %d has disconnected.\n",timer.getCurrent(),events.top().args[0]);
+					break;
+				}
+				case VERB_END:
+				{
+					printf("[%7d]Exiting...\n",timer.getCurrent());
+					goto endmain;
+					break;
+				}
+			}
+			events.pop();
+		}
+		while(elapsed == 0)
+		{
+			elapsed = timer.elapsed();
+			usleep(800);
+		}
+		for(const auto& ref: paths)
+			ref.second->timeElapsed(elapsed);
+		elapsed = 0;
+	}
+endmain:
+	return 0;
+}
