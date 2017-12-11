@@ -9,17 +9,7 @@
 class Node
 {
 private:
-	typedef struct
-	{
-		NodeId src;
-		NodeId dest;
-	} Path_;
-	class Compare
-	{
-	public:
-		bool operator()(const Path_& a,const Path_& b)const;
-	};
-	std::set<Path_,Compare> paths;
+	std::set<AdvPktPath,AdvPktPathCompare> paths;
 	std::map<NodeId,NodeId> nextHop;
 	void(*transmit)(NodeId,void*,size_t);
 	NodeId myId;

@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-O0 -g3 -std=c++11 -Wall
 LIBS=
-OBJS=path.o node.o main.o
+OBJS=path.o node.o type.o main.o
 PROGRAM=route-sim
 all:	$(PROGRAM)
 $(PROGRAM):	$(OBJS)
