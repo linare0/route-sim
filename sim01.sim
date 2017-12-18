@@ -1,0 +1,26 @@
+declare 0 2
+declare 0 3
+declare 0 4
+declare 0 5
+declare 0 6
+declare 0 7
+declare 0 8
+declare 0 9
+declare 0 10
+declare 0 11
+declare 0 12
+connect 1000 1 1 2 200
+connect 1000 2 1 3 200
+connect 1000 3 3 4 200
+connect 1000 4 4 5 200
+connect 1000 5 4 6 200
+connect 1000 6 6 7 1000
+connect 1000 7 7 8 200
+connect 1000 8 9 8 200
+connect 1000 9 10 8 200
+connect 1000 10 10 11 200
+connect 1000 11 11 12 200
+connect 1000 12 12 10 200
+declare 2000 1
+end 20000
+start

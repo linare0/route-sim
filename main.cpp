@@ -21,7 +21,12 @@ uint32_t Time::elapsed()
 
 Event::Event()
 {
-
+	type = 0;
+	time = 0;
+	args[0] = 0;
+	args[1] = 0;
+	args[2] = 0;
+	args[3] = 0;
 }
 
 Event::Event(uint32_t Type,uint32_t Time,uint32_t Arg1,uint32_t Arg2,uint32_t Arg3,uint32_t Arg4)
@@ -84,7 +89,7 @@ startmain:
 	Time timer = Time();
 	while(!events.empty())
 	{
-		if(events.top().time <= timer.getCurrent())
+		while(events.top().time <= timer.getCurrent())
 		{
 			switch(events.top().type)
 			{

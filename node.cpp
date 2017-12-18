@@ -1,22 +1,5 @@
 #include "node.hpp"
 
-void parse(void* data,size_t count)
-{
-	switch(*(Magic*)data)
-	{
-	case MAGIC_ADV:
-		AdvPktHdr* pkt = (AdvPktHdr*)data;
-		AdvPktPath* pts = (AdvPktPath*)((size_t)data + sizeof(AdvPktHdr));
-		printf("ADV PACKET: COUNT=%d LASTHOP=%d\n",pkt->count,pkt->lastHop);
-		for(uint32_t i = 0;i < pkt->count;i++)
-		{
-			printf("PATH SRC=%d DEST=%d\n",pts[i].src,pts[i].dest);
-		}
-		printf("\n");
-		break;
-	}
-}
-
 Node::Node(NodeId MyId,void(*OutPtr)(NodeId,void*,size_t))
 {
 	myId = MyId;
@@ -30,7 +13,7 @@ Node::Node(NodeId MyId,void(*OutPtr)(NodeId,void*,size_t))
 
 void Node::recieve(void* Data,size_t Count)
 {
-	parse(Data,Count);
+    PacketParser::parse(Data,Count);
 	switch(*(Magic*)Data)
 	{
 	case MAGIC_ADV:

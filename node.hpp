@@ -2,6 +2,7 @@
 #define NODE_HPP
 
 #include "type.hpp"
+#include "parse.hpp"
 #include <set>
 #include <algorithm>
 #include <map>

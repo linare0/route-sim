@@ -25,6 +25,7 @@ Path::Path()
 	currentTime = 0;
 	node[0] = 0;
 	node[1] = 0;
+	bookPtr = NULL;
 }
 
 Path::Path(NodeId Node1, NodeId Node2,std::map<NodeId,Node*>* BookPtr, unsigned long Delay)
