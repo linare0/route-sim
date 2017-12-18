@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-O0 -g3 -std=c++11 -Wall
+CXXFLAGS=-O3 -std=c++11 -Wall
 LIBS=
 OBJS=path.o node.o type.o main.o
 PROGRAM=route-sim
