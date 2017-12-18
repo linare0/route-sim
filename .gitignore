@@ -1,4 +1,4 @@
 *.o
 /route-sim
 *.swap
-/test.cpp
+.*
