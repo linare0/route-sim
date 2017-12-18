@@ -87,51 +87,64 @@ int main(void)
 startmain:
 	uint32_t elapsed = 0;
 	Time timer = Time();
+	unsigned long currentTime = 0;
 	while(!events.empty())
 	{
-		while(events.top().time <= timer.getCurrent())
+		while(events.top().time <= currentTime)
 		{
 			switch(events.top().type)
 			{
 				case VERB_DECLARE:
 				{
-					auto node = new Node(events.top().args[0],send);
+					auto node = new Node(events.top().args[0],30000,send);
 					book.insert(std::make_pair(events.top().args[0],node));
-					printf("[%7d]Node %d has declaed.\n",timer.getCurrent(),events.top().args[0]);
+					printf("[%7d]Node %03d has declaed.\n",(int)currentTime,events.top().args[0]);
 					break;
 				}
 				case VERB_CONNECT:
 				{
 					auto path = new Path(events.top().args[1],events.top().args[2],&book,events.top().args[3]);
 					paths[events.top().args[0]] = path;
-					printf("[%7d]Path %d has connected between %d and %d with delay for %d.\n",timer.getCurrent(),events.top().args[0],events.top().args[1],events.top().args[2],events.top().args[3]);
+					printf("[%7d]Path %03d has connected between %03d and %03d with delay for %05d.\n",(int)currentTime,events.top().args[0],events.top().args[1],events.top().args[2],events.top().args[3]);
 					break;
 				}
 				case VERB_DISCONNECT:
 				{
 					delete paths[events.top().args[0]];
 					paths.erase(events.top().args[0]);
-					printf("[%7d]Path %d has disconnected.\n",timer.getCurrent(),events.top().args[0]);
+					printf("[%7d]Path %03d has disconnected.\n",(int)currentTime,events.top().args[0]);
 					break;
 				}
 				case VERB_END:
 				{
-					printf("[%7d]Exiting...\n",timer.getCurrent());
+					printf("[%7d]Exiting...\n",(int)currentTime);
 					goto endmain;
 					break;
 				}
 			}
 			events.pop();
 		}
+#ifdef REALTIME
 		while(elapsed == 0)
 		{
 			elapsed = timer.elapsed();
 			usleep(800);
 		}
+#else
+		elapsed = 1;
+#endif
+		currentTime += elapsed;
 		for(const auto& ref: paths)
 			ref.second->timeElapsed(elapsed);
+		for(const auto& ref: book)
+			ref.second->timeElapsed(elapsed);
+		PacketParser::timeElapsed(elapsed);
 		elapsed = 0;
 	}
 endmain:
+	for(const auto& ref: paths)
+		delete ref.second;
+	for(const auto& ref: book)
+		delete ref.second;
 	return 0;
 }

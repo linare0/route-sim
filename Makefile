@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-O3 -std=c++11 -Wall
+CXXFLAGS=-O2 -std=c++11 -Wall
 LIBS=
 OBJS=parse.o path.o node.o type.o main.o
 PROGRAM=route-sim
@@ -10,5 +10,8 @@ clean:
 	rm -f *.o *~ $(PROGRAM)
 run:	$(PROGRAM)
 	./$<
+rebuild:
+	make clean
+	make all
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@

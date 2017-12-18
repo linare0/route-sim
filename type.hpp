@@ -7,16 +7,16 @@
 #include <stdlib.h>
 #include <utility>
 
-#define MAGIC_ADV 0x436709e0
+#define MAGIC_ADV 0x43
 
-typedef uint32_t NodeId;
+typedef uint8_t NodeId;
 typedef uint32_t PathId;
-typedef uint32_t Magic;
+typedef uint8_t Magic;
 typedef struct
 {
 	Magic magic;
 	NodeId lastHop;
-	uint32_t count;
+	uint16_t count;
 } __attribute__((__packed__)) AdvPktHdr;
 
 typedef struct

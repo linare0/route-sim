@@ -3,6 +3,7 @@
 
 #include "node.hpp"
 #include "path.hpp"
+#include "parse.hpp"
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdint.h>
