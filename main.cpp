@@ -88,7 +88,7 @@ startmain:
 			{
 			case VERB_DECLARE:
 				{
-					auto node = new Node(events.top().args[0],30000,send);
+					auto node = new Node(events.top().args[0],10000,send);
 					book.insert(std::make_pair(events.top().args[0],node));
 				printf("[%7d]Node %03d has declared.\n",
 						(int) Clock::getCurrent(),

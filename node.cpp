@@ -39,8 +39,8 @@ void Node::calcRoute(void)
 				found.insert(ref.dest);
 				nextHop[ref.dest] = bfs.front().first;
 			}
-			bfs.pop();
 		}
+		bfs.pop();
 	}
 }
 
