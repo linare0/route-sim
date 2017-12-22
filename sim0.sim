@@ -1,0 +1,4 @@
+declare 1000 1
+declare 1000 2
+connect 1 1 2 100
+end 10000

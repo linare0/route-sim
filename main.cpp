@@ -70,7 +70,7 @@ int main(void)
 		}
 		else
 		{
-			printf("Parse error: unknown verb: %s",buf);
+			printf("Parse error: unknown verb: %s", buf.c_str());
 			exit(-1);
 		}
 		events.push(tmpEvent);
@@ -124,7 +124,10 @@ startmain:
 						events.top().args[1], events.top().args[2], nulldata,
 						events.top().args[3]);
 				printf(
-						"{%7d]Transmitting packet from %03d to %03d with fixed size %04d Bytes");
+						"{%7d]Transmitting packet from %03d to %03d on TTL %03d with fixed size %04d Bytes",
+						(int) Clock::getCurrent(), events.top().args[0],
+						events.top().args[1], events.top().args[2],
+						events.top().args[3]);
 			}
 			}
 			events.pop();

@@ -74,7 +74,7 @@ std::pair<void*,size_t> AdvPktFactory::buildPkt(void)
 DataPktFactory::DataPktFactory(NodeId MyId) {
 	pkt = malloc(MAX_PAYLOAD + sizeof(DataPktHdr));
 	pktHdr = (DataPktHdr*) pkt;
-	pktPld = pkt + (sizeof(DataPktHdr));
+	pktPld = (void*) ((size_t) pkt + (sizeof(DataPktHdr)));
 	myId = MyId;
 	pktHdr->magic = MAGIC_DATA;
 	pktHdr->lastHop = MyId;
