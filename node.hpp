@@ -17,7 +17,6 @@ private:
 	std::set<AdvPktPath,AdvPktPathCompare> paths;
 	std::map<NodeId,NodeId> nextHop;
 	void (*transmit_raw)(NodeId, void*, size_t);
-	void (*capture)(NodeId ObservedAt, EInOut InOut, void* Data, size_t Count);
 	NodeId myId;
 	unsigned long advInterval;
 	unsigned long advertized;
