@@ -61,7 +61,7 @@ int main(void)
 		else if (buf == "data") {
 			tmpEvent.type = VERB_DATA;
 			std::cin >> tmpEvent.time >> tmpEvent.args[0] >> tmpEvent.args[1]
-					>> tmpEvent.args[2];
+					>> tmpEvent.args[2] >> tmpEvent.args[3];
 		}
 		else if(buf == "start")
 		{
@@ -78,6 +78,7 @@ int main(void)
 startmain:
 	uint32_t elapsed = 0;
 	uint32_t lastElapsed = 0;
+	Clock::init();
 	void* nulldata = malloc(10000);
 	while(!events.empty())
 	{
@@ -124,11 +125,11 @@ startmain:
 						events.top().args[1], events.top().args[2], nulldata,
 						events.top().args[3]);
 				printf(
-						"{%7d]Transmitting packet from %03d to %03d on TTL %03d with fixed size %04d Bytes",
+						"{%7d]Transmitting packet from %03d to %03d on TTL %03d with fixed size %04d Bytes\n",
 						(int) Clock::getCurrent(), events.top().args[0],
 						events.top().args[1], events.top().args[2],
 						events.top().args[3]);
-			}
+				}
 			}
 			events.pop();
 		}
@@ -151,6 +152,7 @@ startmain:
 		elapsed = 0;
 	}
 endmain:
+	Analyzer::deinit();
 	for(const auto& ref: paths)
 		delete ref.second;
 	for(const auto& ref: book)

@@ -82,7 +82,7 @@ DataPktFactory::DataPktFactory(NodeId MyId) {
 	pktHdr->time = 0;
 }
 
-std::pair<void*, size_t> DataPktFactory::buildPkt(const NodeId Dest,
+std::pair<void*, size_t> DataPktFactory::buildPkt(const NodeId Dest, const NodeId NextHop,
 		const uint8_t Ttl, const void* Data, const size_t Count) {
 	std::pair<void*, size_t> retval;
 	retval.first = pkt;
@@ -90,6 +90,7 @@ std::pair<void*, size_t> DataPktFactory::buildPkt(const NodeId Dest,
 	memcpy(pktPld, Data, Count);
 	pktHdr->dest = Dest;
 	pktHdr->ttl = Ttl;
+	pktHdr->nextHop = NextHop;
 	pktHdr->size = Count;
 	return retval;
 }

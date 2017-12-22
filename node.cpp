@@ -15,6 +15,35 @@ Node::~Node() {
 
 }
 
+void Node::calcRoute(void)
+{
+	std::set<NodeId> found;
+	std::queue<std::pair<NodeId,NodeId>> bfs;
+	nextHop.clear();
+	for(const auto& ref :paths)
+	{
+		if(ref.src == myId)
+		{
+			bfs.push(std::make_pair(ref.dest,ref.dest));
+			found.insert(ref.dest);
+			nextHop[ref.dest] = ref.dest;
+		}
+	}
+	while(!bfs.empty())
+	{
+		for(const auto& ref :paths)
+		{
+			if(found.find(ref.dest) == found.end() && ref.src == bfs.front().second)
+			{
+				bfs.push(std::make_pair(bfs.front().first,ref.dest));
+				found.insert(ref.dest);
+				nextHop[ref.dest] = bfs.front().first;
+			}
+			bfs.pop();
+		}
+	}
+}
+
 void Node::transmit(void* Data, size_t Count) {
 	Analyzer::registerPacket(myId, OUT, Data, Count, Clock::getCurrent());
 	transmit_raw(myId, Data, Count);
@@ -28,6 +57,9 @@ void Node::recieve(void* Data,size_t Count)
 	{
 	case MAGIC_ADV:
 		procAdv(Data,Count);
+		break;
+	case MAGIC_DATA:
+		procData(Data,Count);
 		break;
 	default:
 		break;
@@ -63,7 +95,25 @@ void Node::procAdv(void* Data,size_t Count)
 		}
 	}
 	if(changed)
+	{
 		forceAdvertize();
+		calcRoute();
+	}
+}
+
+void Node::procData(void* Data,size_t Count)
+{
+	const auto pkt = (DataPktHdr*)Data;
+	const void* payload = (void*)((size_t)Data + sizeof(DataPktHdr));
+	if(pkt->dest == myId)
+	{
+
+	}
+	else if(pkt->time < pkt->ttl && pkt->nextHop == myId && nextHop.find(pkt->dest) != nextHop.end())
+	{
+		auto relay = dataPktFactory.buildPkt(pkt->dest,nextHop[pkt->dest],pkt->ttl,payload,pkt->size);
+		transmit(relay.first,relay.second);
+	}
 }
 
 void Node::timeElapsed(unsigned long Elapsed)
@@ -94,7 +144,10 @@ void Node::forceAdvertize(void) {
 }
 
 void Node::forceSendData(NodeId Dest, uint8_t Ttl, void* Data, size_t Count) {
-	auto pkt = dataPktFactory.buildPkt(Dest, Ttl, Data, Count);
-	transmit(pkt.first, pkt.second);
+	if(nextHop.find(Dest) != nextHop.end())
+	{
+		auto pkt = dataPktFactory.buildPkt(Dest,nextHop[Dest], Ttl, Data, Count);
+		transmit(pkt.first, pkt.second);
+	}
 }
 

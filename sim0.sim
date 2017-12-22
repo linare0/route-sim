@@ -1,4 +1,6 @@
 declare 1000 1
-declare 1000 2
-connect 1 1 2 100
-end 10000
+connect 1000 1 1 2 100
+declare 2000 2
+data 3000 1 2 100 1000
+end 5000
+start

@@ -6,6 +6,8 @@
 #include "analyze.hpp"
 #include "time.hpp"
 #include <set>
+#include <utility>
+#include <queue>
 #include <algorithm>
 #include <map>
 
@@ -22,6 +24,7 @@ private:
 	void transmit(void* Data, size_t Count);
 	void calcRoute(void);
 	void procAdv(void* Data,size_t Count);
+	void procData(void* Data,size_t Count);
 	DataPktFactory dataPktFactory;
 public:
 	Node(NodeId MyId, unsigned long Interval,

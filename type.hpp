@@ -55,6 +55,7 @@ public:
 typedef struct {
 	Magic magic;
 	NodeId lastHop;
+	NodeId nextHop;
 	uint8_t ttl;
 	uint8_t time;
 	NodeId src;
@@ -70,7 +71,7 @@ private:
 	void* pktPld;
 public:
 	DataPktFactory(NodeId MyId);
-	std::pair<void*, size_t> buildPkt(const NodeId Dest, const uint8_t Ttl,
+	std::pair<void*, size_t> buildPkt(const NodeId Dest,const NodeId NextHop , const uint8_t Ttl,
 			const void* Data, const size_t Count);
 };
 

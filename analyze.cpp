@@ -1,7 +1,7 @@
 #include "analyze.hpp"
 #include "time.hpp"
 
-std::vector<Traffic> Analyzer::traffic;
+std::vector<Traffic*> Analyzer::traffic;
 
 Traffic::Traffic(NodeId ObservedAt, EInOut InOut, void* Data, size_t Count,
 		uint32_t Time) {
@@ -23,6 +23,11 @@ bool Traffic::CompareByTime::operator ()(const Traffic& a,
 
 void Analyzer::registerPacket(NodeId ObservedAt, EInOut InOut, void* Data,
 		size_t Count, uint32_t Time) {
-	traffic.push_back(
-			Traffic(ObservedAt, InOut, Data, Count, Clock::getCurrent()));
+	traffic.push_back(new Traffic(ObservedAt, InOut, Data, Count, Clock::getCurrent()));
+}
+
+void Analyzer::deinit(void)
+{
+	for(auto& ref :traffic)
+		delete ref;
 }

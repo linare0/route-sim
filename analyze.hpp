@@ -29,8 +29,10 @@ public:
 
 class Analyzer {
 private:
-	static std::vector<Traffic> traffic;
+	static std::vector<Traffic*> traffic;
 public:
+	static void init(void);
+	static void deinit(void);
 	static void registerPacket(NodeId ObservedAt, EInOut InOut, void* Data,
 			size_t Count, uint32_t Time);
 };
