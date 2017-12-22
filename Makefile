@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-O2 -std=c++11 -Wall
 LIBS=
-OBJS=parse.o path.o node.o type.o main.o
+OBJS=parse.o path.o node.o type.o main.o time.o analyze.o
 PROGRAM=route-sim
 all:	$(PROGRAM)
 $(PROGRAM):	$(OBJS)

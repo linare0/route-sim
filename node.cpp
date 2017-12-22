@@ -1,27 +1,28 @@
 #include "node.hpp"
 
-Node::Node(NodeId MyId,unsigned long Interval,void(*OutPtr)(NodeId,void*,size_t))
+Node::Node(NodeId MyId, unsigned long Interval,
+		void (*OutPtr)(NodeId, void*, size_t)) :
+		dataPktFactory(MyId)
 {
 	advInterval = Interval;
 	advertized = 0;
 	myId = MyId;
-	transmit = OutPtr;
-	AdvPktHdr pkt;
-	pkt.magic = MAGIC_ADV;
-	pkt.lastHop = myId;
-	pkt.count = 0;
-	transmit(myId,&pkt,sizeof(AdvPktHdr));
+	transmit_raw = OutPtr;
+	forceAdvertize();
 }
 
-Node::~Node()
-{
-	printf("Node %03d statistics\n",(int)myId);
-	printf("Recieved: %05d packets(%07d Bytes)\n",(int)recvCount,(int)recvByte);
-	printf("Sent: %05d packets(%07d Bytes)\n\n",(int)sentCount,(int)sentByte);
+Node::~Node() {
+
+}
+
+void Node::transmit(void* Data, size_t Count) {
+	Analyzer::registerPacket(myId, OUT, Data, Count, Clock::getCurrent());
+	transmit_raw(myId, Data, Count);
 }
 
 void Node::recieve(void* Data,size_t Count)
 {
+	Analyzer::registerPacket(myId, IN, Data, Count, Clock::getCurrent());
 	PacketParser::parse(Data,Count,myId);
 	switch(*(Magic*)Data)
 	{
@@ -62,26 +63,7 @@ void Node::procAdv(void* Data,size_t Count)
 		}
 	}
 	if(changed)
-	{
-		AdvPktHdr* npkt = (AdvPktHdr*)malloc(sizeof(AdvPktPath) * paths.size() + sizeof(AdvPktHdr));
-		npkt->magic = MAGIC_ADV;
-		npkt->count = paths.size();
-		npkt->lastHop = myId;
-		AdvPktPath* innp = (AdvPktPath*)((size_t)npkt + sizeof(AdvPktHdr));
-		uint32_t index = 0;
-		for(const auto& ref : paths)
-		{
-			innp[index].src = ref.src;
-			innp[index].dest = ref.dest;
-			index++;
-		}
-		transmit(myId,npkt,sizeof(AdvPktPath) * paths.size() + sizeof(AdvPktHdr));
-		free(npkt);
-		sentCount++;
-		sentByte += sizeof(AdvPktPath) * paths.size() + sizeof(AdvPktHdr);
-	}
-	recvCount++;
-	recvByte += Count;
+		forceAdvertize();
 }
 
 void Node::timeElapsed(unsigned long Elapsed)
@@ -90,19 +72,29 @@ void Node::timeElapsed(unsigned long Elapsed)
 	if(advertized >= advInterval)
 	{
 		advertized = 0;
-		AdvPktHdr* npkt = (AdvPktHdr*)malloc(sizeof(AdvPktPath) * paths.size() + sizeof(AdvPktHdr));
-		npkt->magic = MAGIC_ADV;
-		npkt->count = paths.size();
-		npkt->lastHop = myId;
-		AdvPktPath* innp = (AdvPktPath*)((size_t)npkt + sizeof(AdvPktHdr));
-		uint32_t index = 0;
-		for(const auto& ref : paths)
-		{
-			innp[index].src = ref.src;
-			innp[index].dest = ref.dest;
-			index++;
-		}
-		transmit(myId,npkt,sizeof(AdvPktPath) * paths.size() + sizeof(AdvPktHdr));
-		free(npkt);
+		forceAdvertize();
 	}
 }
+
+void Node::forceAdvertize(void) {
+	AdvPktHdr* npkt = (AdvPktHdr*) malloc(
+			sizeof(AdvPktPath) * paths.size() + sizeof(AdvPktHdr));
+	npkt->magic = MAGIC_ADV;
+	npkt->count = paths.size();
+	npkt->lastHop = myId;
+	AdvPktPath* innp = (AdvPktPath*) ((size_t) npkt + sizeof(AdvPktHdr));
+	uint32_t index = 0;
+	for (const auto& ref : paths) {
+		innp[index].src = ref.src;
+		innp[index].dest = ref.dest;
+		index++;
+	}
+	transmit(npkt, sizeof(AdvPktPath) * paths.size() + sizeof(AdvPktHdr));
+	free(npkt);
+}
+
+void Node::forceSendData(NodeId Dest, uint8_t Ttl, void* Data, size_t Count) {
+	auto pkt = dataPktFactory.buildPkt(Dest, Ttl, Data, Count);
+	transmit(pkt.first, pkt.second);
+}
+

@@ -4,8 +4,8 @@
 #include "node.hpp"
 #include "path.hpp"
 #include "parse.hpp"
-#include <sys/time.h>
-#include <unistd.h>
+#include "analyze.hpp"
+#include "time.hpp"
 #include <stdint.h>
 #include <queue>
 #include <string>
@@ -15,18 +15,7 @@
 #define VERB_CONNECT 2
 #define VERB_DISCONNECT 3
 #define VERB_END 4
-
-class Time
-{
-private:
-	struct timeval start;
-	struct timeval current;
-	uint32_t lastElapse;
-public:
-	Time();
-	uint32_t getCurrent();
-	uint32_t elapsed();
-};
+#define VERB_DATA 5
 
 class Event
 {

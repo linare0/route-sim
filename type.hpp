@@ -8,6 +8,9 @@
 #include <utility>
 
 #define MAGIC_ADV 0x43
+#define MAGIC_DATA 0xb4
+#define MAX_PAYLOAD 10000
+#define MAX_TTL 255
 
 typedef uint8_t NodeId;
 typedef uint32_t PathId;
@@ -47,6 +50,28 @@ public:
 	void clearPath(void);
 	void setMyId(NodeId MyId);
 	std::pair<void*,size_t> buildPkt(void);
+};
+
+typedef struct {
+	Magic magic;
+	NodeId lastHop;
+	uint8_t ttl;
+	uint8_t time;
+	NodeId src;
+	NodeId dest;
+	uint16_t size;
+}__attribute__((__packed__)) DataPktHdr;
+
+class DataPktFactory {
+private:
+	NodeId myId;
+	void* pkt;
+	DataPktHdr* pktHdr;
+	void* pktPld;
+public:
+	DataPktFactory(NodeId MyId);
+	std::pair<void*, size_t> buildPkt(const NodeId Dest, const uint8_t Ttl,
+			const void* Data, const size_t Count);
 };
 
 #endif

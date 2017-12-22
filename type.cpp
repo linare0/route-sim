@@ -70,3 +70,27 @@ std::pair<void*,size_t> AdvPktFactory::buildPkt(void)
 	}
 	return ptr;
 }
+
+DataPktFactory::DataPktFactory(NodeId MyId) {
+	pkt = malloc(MAX_PAYLOAD + sizeof(DataPktHdr));
+	pktHdr = (DataPktHdr*) pkt;
+	pktPld = pkt + (sizeof(DataPktHdr));
+	myId = MyId;
+	pktHdr->magic = MAGIC_DATA;
+	pktHdr->lastHop = MyId;
+	pktHdr->src = MyId;
+	pktHdr->time = 0;
+}
+
+std::pair<void*, size_t> DataPktFactory::buildPkt(const NodeId Dest,
+		const uint8_t Ttl, const void* Data, const size_t Count) {
+	std::pair<void*, size_t> retval;
+	retval.first = pkt;
+	retval.second = Count + sizeof(DataPktHdr);
+	memcpy(pktPld, Data, Count);
+	pktHdr->dest = Dest;
+	pktHdr->ttl = Ttl;
+	pktHdr->size = Count;
+	return retval;
+}
+
