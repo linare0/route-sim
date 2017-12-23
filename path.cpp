@@ -78,7 +78,7 @@ void Path::timeElapsed(unsigned long Elapsed)
 	currentTime += Elapsed;
 	while(!awaits.empty()&& awaits.top()->dueTime <= currentTime)
 	{
-		if(bookPtr->find(awaits.top()->dest) != bookPtr->end())
+		if(bookPtr->find(awaits.top()->dest) != bookPtr->end() && bookPtr->find(awaits.top()->dest) != bookPtr->end())
 			(bookPtr->find(awaits.top()->dest)->second)->recieve(awaits.top()->data,awaits.top()->count);
 		delete awaits.top();
 		awaits.pop();

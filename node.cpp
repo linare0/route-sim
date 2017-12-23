@@ -107,12 +107,17 @@ void Node::procData(void* Data,size_t Count)
 	const void* payload = (void*)((size_t)Data + sizeof(DataPktHdr));
 	if(pkt->dest == myId)
 	{
-		printf("[%07d]Data packet recieved at %03d",Clock::getCurrent(),myId);
+		printf("[%7d]Data packet recieved at %03d\n",Clock::getCurrent(),myId);
 	}
 	else if(pkt->time < pkt->ttl && pkt->nextHop == myId && nextHop.find(pkt->dest) != nextHop.end())
 	{
 		auto relay = dataPktFactory.buildPkt(pkt->dest,nextHop[pkt->dest],pkt->ttl+1,payload,pkt->size);
+		printf("[%7d]Data packet relayed at %03d:NextHop=%03d\n",Clock::getCurrent(),myId,nextHop[pkt->dest]);
 		transmit(relay.first,relay.second);
+	}
+	else
+	{
+		printf("[%7d]Data packet destroyed at %03d\n",Clock::getCurrent(),myId);
 	}
 }
 

@@ -19,6 +19,15 @@ void PacketParser::parseAdvPkt(const void* Data,const size_t Count)
     }
 }
 
+void PacketParser::parseDataPkt(const void* Data,const size_t Count)
+{
+    if(*(Magic*)Data == MAGIC_DATA)
+    {
+	DataPktHdr* pkt = (DataPktHdr*)Data;
+	printf("DATA PACKET: LASTHOP=%d NEXTHOP=%d TIME=%d TTL=%d SRC=%d DEST=%d PAYLOAD=%d\n",pkt->lastHop,pkt->nextHop,pkt->time,pkt->ttl,pkt->src,pkt->dest,pkt->size);
+    }
+}
+
 void PacketParser::parse(const void* Data,const size_t Count,NodeId Id)
 {
     sumCount++;
@@ -29,6 +38,11 @@ void PacketParser::parse(const void* Data,const size_t Count,NodeId Id)
     case MAGIC_ADV:
         parseAdvPkt(Data,Count);
         break;
+    case MAGIC_DATA:
+    	parseDataPkt(Data,Count);
+	break;
+    default:
+        printf("UNKNOWN PACKET TYPE");
     }
 }
 
